@@ -1,0 +1,41 @@
+# --- secrets ---
+.env
+
+# --- machine outputs ---
+outputs/
+
+# --- data ---
+data/
+
+# --- python ---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- virtual env ---
+.venv/
+venv/
+
+# --- notebooks ---
+.ipynb_checkpoints/
+
+# --- macOS ---
+.DS_Store
+
+# --- editor ---
+.vscode/
+.idea/
+
+# --- local caches ---
+.cache/
+
+# --- logs---
+*.log
+
+# --- notes ---
+.obsidian/
+
+# —— temporary directories —— 
+tmp/
