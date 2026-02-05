@@ -1,0 +1,3 @@
+[submodule "external/EDINET-Bench"]
+	path = external/EDINET-Bench
+	url = https://github.com/SakanaAI/EDINET-Bench
