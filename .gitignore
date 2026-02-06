@@ -3,6 +3,7 @@
 
 # --- machine outputs ---
 outputs/
+reproduction/outputs/
 
 # --- data ---
 data/

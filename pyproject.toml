@@ -2,4 +2,7 @@
 name = "edinet-agentic"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = ["edinet-bench"]
+
+[tool.uv.sources]
+edinet-bench = { path = "external/EDINET-Bench" }
