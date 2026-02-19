@@ -5,9 +5,13 @@ bootstrap 95% confidence intervals, and produces a comparison table
 against the paper's reported values.
 
 Usage:
-    uv run python reproduction/scripts/analyze.py \
+    uv run python reproduction/scripts/analyze.py --experiment-id EXP-R-0002 \
         reproduction/outputs/EXP-R-0002/o4-mini-2025-04-16/results.jsonl \
         reproduction/outputs/EXP-R-0002/claude-haiku-4-5-20251001/results.jsonl
+
+    uv run python reproduction/scripts/analyze.py --experiment-id EXP-R-0003 \
+        reproduction/outputs/EXP-R-0003/o4-mini-2025-04-16/results.jsonl \
+        reproduction/outputs/EXP-R-0003/claude-haiku-4-5-20251001/results.jsonl
 """
 
 from __future__ import annotations
@@ -28,11 +32,26 @@ from sklearn.metrics import (
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-# Paper-reported values (Table 6, fraud_detection, summary+bs+cf+pl)
+# Paper-reported values (Table 6, fraud_detection)
 # Format: (mean, ± std) — paper reports 3-run std
-PAPER_VALUES = {
-    "o4-mini-2025-04-16": {"roc_auc": (0.52, 0.01), "mcc": (0.04, 0.05)},
-    "claude-3-5-haiku-20241022": {"roc_auc": (0.60, 0.01), "mcc": (0.18, 0.03)},
+# Keyed by experiment ID → paper model → metrics
+EXPERIMENT_CONFIGS = {
+    "EXP-R-0002": {
+        "sheets_label": "summary, bs, pl, cf",
+        "paper_config_label": "summary+bs+cf+pl",
+        "paper_values": {
+            "o4-mini-2025-04-16": {"roc_auc": (0.52, 0.01), "mcc": (0.04, 0.05)},
+            "claude-3-5-haiku-20241022": {"roc_auc": (0.60, 0.01), "mcc": (0.18, 0.03)},
+        },
+    },
+    "EXP-R-0003": {
+        "sheets_label": "summary, bs, pl, cf, text",
+        "paper_config_label": "summary+bs+cf+pl+text",
+        "paper_values": {
+            "o4-mini-2025-04-16": {"roc_auc": (0.61, 0.01), "mcc": (0.10, 0.05)},
+            "claude-3-5-haiku-20241022": {"roc_auc": (0.67, 0.00), "mcc": (0.28, 0.02)},
+        },
+    },
 }
 
 
@@ -128,12 +147,13 @@ def format_paper_value(mean: float, std: float) -> str:
     return f"{mean:.2f} +/- {std:.2f}"
 
 
-def generate_summary(analyses: list[dict]) -> str:
+def generate_summary(analyses: list[dict], experiment_id: str, exp_cfg: dict) -> str:
+    paper_values = exp_cfg["paper_values"]
     lines = []
-    lines.append("# EXP-R-0002: Budgeted Reproduction — fraud_detection\n")
+    lines.append(f"# {experiment_id}: Budgeted Reproduction — fraud_detection\n")
     lines.append(f"**Date:** {__import__('datetime').date.today().isoformat()}")
     lines.append("**Task:** fraud_detection")
-    lines.append("**Sheets:** summary, bs, pl, cf")
+    lines.append(f"**Sheets:** {exp_cfg['sheets_label']}")
     lines.append(f"**Sample:** N={analyses[0]['n_total']} (stratified, seed=42)\n")
 
     # Per-model details
@@ -159,7 +179,7 @@ def generate_summary(analyses: list[dict]) -> str:
 
     # Comparison table
     lines.append("## Comparison with Paper (Table 6)\n")
-    lines.append("Paper config: fraud_detection, summary+bs+cf+pl, full test set (224 examples), 3 runs.\n")
+    lines.append(f"Paper config: fraud_detection, {exp_cfg['paper_config_label']}, full test set (224 examples), 3 runs.\n")
     lines.append("| Model | Metric | Ours (N=50, 95% CI) | Paper (N=224, 3-run) |")
     lines.append("|-------|--------|---------------------|----------------------|")
 
@@ -179,8 +199,8 @@ def generate_summary(analyses: list[dict]) -> str:
             paper_key = None
             paper_label = model
 
-        if paper_key and paper_key in PAPER_VALUES:
-            pv = PAPER_VALUES[paper_key]
+        if paper_key and paper_key in paper_values:
+            pv = paper_values[paper_key]
             lines.append(
                 f"| {paper_label} | ROC-AUC | "
                 f"{format_metric_with_ci(m['roc_auc'], ci.get('roc_auc'))} | "
@@ -217,8 +237,14 @@ def generate_summary(analyses: list[dict]) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyze EDINET-Bench results")
     parser.add_argument("results", type=Path, nargs="+", help="Path(s) to results.jsonl")
+    parser.add_argument(
+        "--experiment-id", required=True,
+        choices=list(EXPERIMENT_CONFIGS.keys()),
+        help="Experiment ID (selects paper reference values and output path)",
+    )
     args = parser.parse_args()
 
+    exp_cfg = EXPERIMENT_CONFIGS[args.experiment_id]
     analyses = [analyze_one(p) for p in args.results]
 
     # Print to console
@@ -238,8 +264,8 @@ def main() -> None:
             print(f"Cost:      ${a['cost_usd']:.4f}")
 
     # Save summary
-    summary = generate_summary(analyses)
-    out_dir = REPO_ROOT / "reproduction" / "results" / "EXP-R-0002"
+    summary = generate_summary(analyses, args.experiment_id, exp_cfg)
+    out_dir = REPO_ROOT / "reproduction" / "results" / args.experiment_id
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "summary.md"
     out_path.write_text(summary)
