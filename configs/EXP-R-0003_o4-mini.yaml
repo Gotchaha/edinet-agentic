@@ -1,0 +1,9 @@
+experiment_id: EXP-R-0003
+task: fraud_detection
+sample: reproduction/sampling/fraud_detection_n50_seed42.json
+sheets: [summary, bs, pl, cf, text]
+system_prompt: "You are a financial analyst."
+
+model:
+  id: o4-mini-2025-04-16
+  provider: openai
