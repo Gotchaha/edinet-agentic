@@ -73,3 +73,16 @@
 - **Cost impact of text**: input tokens ~8.5x larger (192K→1.63M for o4-mini), cost ~3.4x per model.
 - 0 parse failures across 100 total API calls.
 - **Next:** Begin failure-mode diagnosis (H1) on these results.
+
+## EXP-D-0001: Failure Mechanism Diagnosis (H1)
+
+- **Status:** COMPLETE
+- **Date:** 2026-02-19 → 2026-02-20
+- **Hypothesis:** H1 — errors are primarily reliability failures, not intelligence limitations
+- **Data:** 4 result sets from EXP-R-0002/0003 (2 models × 2 configs, same N=50)
+- **Scripts:** `scripts/missingness.py`, `scripts/prepare_audit.py`, `scripts/classify_errors.py`, `scripts/agreement.py`
+- **Outputs:** `outputs/EXP-D-0001/` (raw), `experiments/EXP-D-0001/` (reports)
+- **Report:** `experiments/EXP-D-0001/h1_report.md`
+- **Classification cost:** $2.28 (GPT-5 Batch API, 100 cases)
+- **Verdict:** H1 strongly supported. 100% of errors avoidable (some_correct), 98% addressable by scaffold. Dominant modes: M7 conservatism (58), M2 evidence drift (80 as primary or secondary), M3 magnitude insensitivity (15). Zero M6 (analytical limitation). Missingness not a factor.
+- **Next:** Design H2 agentic scaffold targeting M7/M2/M3
