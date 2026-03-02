@@ -86,3 +86,38 @@
 - **Classification cost:** $2.28 (GPT-5 Batch API, 100 cases)
 - **Verdict:** H1 strongly supported. 100% of errors avoidable (some_correct), 98% addressable by scaffold. Dominant modes: M7 conservatism (58), M2 evidence drift (80 as primary or secondary), M3 magnitude insensitivity (15). Zero M6 (analytical limitation). Missingness not a factor.
 - **Next:** Design H2 agentic scaffold targeting M7/M2/M3
+
+## EXP-A-0001: Baseline Reflection Agent — fraud_detection
+
+- **Status:** COMPLETE
+- **Date:** 2026-02-26
+- **Task:** fraud_detection
+- **Sample:** Same frozen N=50 as EXP-R-0002/0003
+- **Sheets:** summary, bs, pl, cf
+- **Model:** claude-haiku-4-5-20251001 (all roles)
+- **Agent:** Reflection loop (generate → critique → revise), 1 round
+- **Config:** `configs/EXP-A-0001.yaml`
+- **Outputs:** `outputs/EXP-A-0001/claude-haiku-4-5-20251001/`
+- **Results:** `experiments/EXP-A-0001/summary.md`
+- **Total cost:** $1.92
+
+### Key findings
+
+| Metric | Single-call (EXP-R-0002) | Reflection (EXP-A-0001) |
+|--------|--------------------------|-------------------------|
+| Accuracy  | 0.580 | 0.480 |
+| F1        | 0.720 | 0.071 |
+| Recall    | 1.000 | 0.037 |
+| Precision | 0.562 | 1.000 |
+
+- **Reflection degraded performance**: F1 0.720 → 0.071, at 5.3x cost.
+- **Asymmetric critic**: critic flipped 43/44 fraud predictions to non-fraud. 22 flips correct (FP→TN), 21 incorrect (TP→FN). Net effect: near-total false negative.
+- **Scaffold-induced M7**: the critic itself introduces conservatism — 45/50 critiques contain "overstate/overreaction". The reviser defers to the critic systematically.
+- Zero parse failures (150 LLM calls).
+
+### Technical notes
+
+- Built with LangGraph + ChatAnthropic. Source: `src/agents/baseline/`, runner: `scripts/EXP-A-0001/run.py`.
+- Decoupled from reproduction code — shared utilities in `src/common/`.
+- See `experiments/EXP-A-0001/notes.md` for failure analysis and reading list.
+- **Next:** Build end-to-end eval pipeline; read related papers on self-correction and sycophancy; iterate on agent design.
