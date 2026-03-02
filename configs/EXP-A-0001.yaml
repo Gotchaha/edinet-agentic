@@ -1,0 +1,12 @@
+experiment_id: EXP-A-0001
+task: fraud_detection
+sample: reproduction/sampling/fraud_detection_n50_seed42.json
+sheets: [summary, bs, pl, cf]
+
+model:
+  id: claude-haiku-4-5-20251001
+  provider: anthropic
+
+agent:
+  type: reflection
+  rounds: 1
