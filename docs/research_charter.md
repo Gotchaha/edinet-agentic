@@ -64,6 +64,8 @@ Traditional metrics alone (ROC-AUC/MCC) may under-measure progress for agentic p
   - Questions: `docs/notes/questions.md`
   - Troubleshooting: `docs/notes/troubleshooting.md`
   - Lessons learned: `docs/notes/lessons_learned.md`
+  - Learning summary: `docs/notes/learning.md`
+  - Thoughts on LLM: `docs/notes/thoughts.md`
 
 - Reproduction module (official baseline replication, budget-aware):
   - See `reproduction/README.md` for scope and `reproduction/results/` for tracked summaries.
