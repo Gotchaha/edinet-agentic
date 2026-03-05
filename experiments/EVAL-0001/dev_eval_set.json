@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "eval_id": "EVAL-0001",
+    "source_sample": "reproduction/sampling/fraud_detection_n50_seed42.json",
+    "n": 12,
+    "selection_criteria": "representative failure modes + regression cases",
+    "failure_mode_coverage": {
+      "M7": 3,
+      "M2": 3,
+      "M3": 2,
+      "correct": 4
+    },
+    "selection_notes": {
+      "M7_conservatism": "o4-mini no-text FN where Haiku no-text correct (prob 0.62-0.72)",
+      "M2_evidence_drift": "mix of FP (S100LM77, S100IUNN) and FN (S1005225) across models",
+      "M3_magnitude_insensitivity": "Haiku no-text FP with M3 primary",
+      "all_correct": "only 2 all-correct examples in N=50 (both L=0)",
+      "some_correct": "L=1 fraud cases where Haiku no-text correct at moderate prob ~0.68"
+    }
+  },
+  "doc_ids": [
+    "S100DHNL",
+    "S100HMPE",
+    "S100C0QM",
+    "S100LM77",
+    "S1005225",
+    "S100IUNN",
+    "S100LQX5",
+    "S100OKNK",
+    "S100AKO6",
+    "S100G7X4",
+    "S100AR6V",
+    "S100BF5L"
+  ]
+}

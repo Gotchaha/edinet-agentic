@@ -121,3 +121,29 @@
 - Decoupled from reproduction code — shared utilities in `src/common/`.
 - See `experiments/EXP-A-0001/notes.md` for failure analysis and reading list.
 - **Next:** Build end-to-end eval pipeline; read related papers on self-correction and sycophancy; iterate on agent design.
+
+## EVAL-0001: End-to-End Evaluation Pipeline
+
+- **Status:** COMPLETE
+- **Date:** 2026-03-05
+- **Purpose:** Standardized eval harness for comparing agent results; curated dev eval set for rapid iteration
+- **Artifacts:**
+  - Dev eval set: `experiments/EVAL-0001/dev_eval_set.json` (N=12, covers M7/M2/M3 + correct cases)
+  - Metrics module: `src/common/metrics.py` (extracted from `reproduction/scripts/analyze.py`)
+  - Evaluation script: `scripts/EVAL-0001/evaluate.py` (single-file, comparison, eval-set filtering)
+- **Report:** `experiments/EVAL-0001/summary.md`
+
+### Verification
+
+Pipeline output matches all previously reported metrics exactly:
+- EXP-R-0002 Haiku: accuracy=0.580, F1=0.720, ROC-AUC=0.471, MCC=0.221
+- EXP-A-0001: accuracy=0.480, F1=0.071, confusion matrix TN=23/FP=0/FN=26/TP=1
+- Comparison mode produces flip analysis and per-failure-mode breakdown
+
+### Design decisions
+
+- Dev eval set (N=12) targets ~$0.50/run vs ~$2/run for full N=50. Label-balanced (6:6).
+  Failure mode coverage: M7 (3), M2 (3), M3 (2), correct (4).
+- Metrics module decoupled into `src/common/` following the same pattern as `src/common/parsing.py`.
+- Eval script supports `--eval-set dev` for rapid iteration and `--baseline` for side-by-side comparison with flip analysis.
+- **Next:** Iterate on agent design (EXP-A-0002+), using `--eval-set dev` for fast feedback loops.
