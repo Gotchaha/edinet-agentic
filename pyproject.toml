@@ -6,6 +6,7 @@ dependencies = [
     "edinet-bench",
     "langgraph>=0.2",
     "langchain-anthropic>=0.3",
+    "simpleeval>=1.0",
 ]
 
 [tool.uv.sources]

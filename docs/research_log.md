@@ -147,3 +147,34 @@ Pipeline output matches all previously reported metrics exactly:
 - Metrics module decoupled into `src/common/` following the same pattern as `src/common/parsing.py`.
 - Eval script supports `--eval-set dev` for rapid iteration and `--baseline` for side-by-side comparison with flip analysis.
 - **Next:** Iterate on agent design (EXP-A-0002+), using `--eval-set dev` for fast feedback loops.
+
+## EXP-A-0002: Tool-Augmented Verification Agent — fraud_detection
+
+- **Status:** COMPLETE (flawed — see design flaws below)
+- **Date:** 2026-03-19
+- **Task:** fraud_detection
+- **Sample:** N=12 (first 12 from frozen N=50 sample, via `--limit 12`)
+- **Sheets:** summary, bs, pl, cf
+- **Model:** claude-haiku-4-5-20251001 (all roles)
+- **Agent:** Tool-augmented verification (generate → verify w/ calculator loop → revise)
+- **Config:** `configs/EXP-A-0002.yaml`
+- **Outputs:** `outputs/EXP-A-0002/claude-haiku-4-5-20251001/`
+- **Results:** `experiments/EXP-A-0002/summary.md`
+- **Total cost:** $2.07
+- **Source:** `src/agents/tool_augmented/`, runner: `scripts/EXP-A-0002/run.py`
+
+### Key findings
+
+| Metric | Single-call (EXP-R-0002) | Verification (EXP-A-0002) |
+|--------|--------------------------|--------------------------|
+| Accuracy  | 0.583 | 0.667 |
+| F1        | 0.737 | 0.778 |
+
+- **M7 conservatism eliminated vs EXP-A-0001**: All 7 M7 errors fixed — tool-grounded feedback avoids authority deference.
+- **Nearly identical to single-call baseline**: 11/12 predictions unchanged vs EXP-R-0002. Verification loop adds ~5x cost without changing failure modes.
+- **Design flaws identified**: (1) arithmetic confirmation ≠ fraud relevance critique, (2) prompt conflict between GENERATOR_SYSTEM and upstream base_prompt, (3) misleading `red_flags_confirmed` semantics.
+- Experiment stopped after dev run; results informative but unreliable for hypothesis evaluation.
+
+### Erratum
+
+Original summary incorrectly described the sample as "dev eval set from EVAL-0001" and compared against N=50 baseline metrics. Corrected 2026-03-30: sample was first-12-by-order, baseline metrics recomputed on the same 12 examples.
