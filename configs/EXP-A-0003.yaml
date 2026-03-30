@@ -1,0 +1,12 @@
+experiment_id: EXP-A-0003
+task: fraud_detection
+sample: experiments/EVAL-0001/dev_eval_set.json
+sheets: [summary, bs, pl, cf]
+
+model:
+  id: claude-haiku-4-5-20251001
+  provider: anthropic
+
+agent:
+  type: tool_augmented
+  tools: [calculator]
