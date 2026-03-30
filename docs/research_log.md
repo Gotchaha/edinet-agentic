@@ -178,3 +178,33 @@ Pipeline output matches all previously reported metrics exactly:
 ### Erratum
 
 Original summary incorrectly described the sample as "dev eval set from EVAL-0001" and compared against N=50 baseline metrics. Corrected 2026-03-30: sample was first-12-by-order, baseline metrics recomputed on the same 12 examples.
+
+## EXP-A-0003: ReAct Agent with Calculator — fraud_detection
+
+- **Status:** COMPLETE
+- **Date:** 2026-03-30
+- **Task:** fraud_detection
+- **Sample:** Dev eval set (N=12) from EVAL-0001
+- **Sheets:** summary, bs, pl, cf
+- **Model:** claude-haiku-4-5-20251001
+- **Agent:** ReAct (single agent + calculator tool, LangGraph tool-calling loop)
+- **Config:** `configs/EXP-A-0003.yaml`
+- **Outputs:** `outputs/EXP-A-0003/claude-haiku-4-5-20251001/`
+- **Results:** `experiments/EXP-A-0003/summary.md`
+- **Total cost:** $0.38
+- **Source:** `src/agents/tool_augmented/`, runner: `scripts/EXP-A-0003/run.py`
+
+### Key findings
+
+| Metric | Single-call (EXP-R-0002) | ReAct + calculator (EXP-A-0003) |
+|--------|--------------------------|--------------------------------|
+| Accuracy  | 0.667 | 0.583 |
+| F1        | 0.750 | 0.706 |
+| ROC-AUC   | 0.389 | 0.472 |
+| MCC       | 0.447 | 0.302 |
+
+- **Calculator does not change predictions**: 11/12 identical to single-call baseline. One new FP (S100G7X4).
+- **Failure modes unchanged**: M2 (6), M3 (3), M7 (6) — none improved, none degraded vs single-call.
+- **Root cause**: base prompt states "numerical values are consistent and correct" — the calculator solves a problem the task says doesn't exist. Actual failures (M2, M3) are about judgment, not computation.
+- Simplified from EXP-A-0002's multi-stage pipeline; avoids prompt conflict and verification amplification issues.
+- **Next:** Target M2/M3 directly — domain context for anomalous magnitudes, or retrieval of comparable companies.

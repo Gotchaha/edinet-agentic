@@ -1,4 +1,4 @@
-"""Tool-augmented verification agent (EXP-A-0002)."""
+"""Tool-augmented ReAct agent."""
 
 from agents.tool_augmented.graph import build_graph
 from agents.tool_augmented.state import AgentState
