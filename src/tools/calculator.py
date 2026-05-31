@@ -8,10 +8,11 @@ from simpleeval import simple_eval
 
 @tool
 def calculator(expression: str) -> str:
-    """Evaluate an arithmetic expression and return the result.
+    """Compute a financial metric or signal from numerical values.
 
-    Use this to verify numerical claims: ratios, percentage changes,
-    differences, etc. Examples:
+    Use this for ratios, percentage changes, growth rates, year-over-year
+    differences, margins, sums, or other derived figures based on the values
+    you have retrieved. Examples:
     - calculator("(159702000000 - 165215000000) / 165215000000 * 100")
     - calculator("7468000000 / 94364000000")
     """
