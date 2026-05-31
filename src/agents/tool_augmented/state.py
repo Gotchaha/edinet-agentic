@@ -13,7 +13,7 @@ class AgentState(MessagesState):
     """
 
     doc_id: str
-    sheets_text: str
+    sheets_listing: str
     base_prompt: str
     # Parsed final output
     final_prediction: int | None

@@ -208,3 +208,33 @@ Original summary incorrectly described the sample as "dev eval set from EVAL-000
 - **Root cause**: base prompt states "numerical values are consistent and correct" — the calculator solves a problem the task says doesn't exist. Actual failures (M2, M3) are about judgment, not computation.
 - Simplified from EXP-A-0002's multi-stage pipeline; avoids prompt conflict and verification amplification issues.
 - **Next:** Target M2/M3 directly — domain context for anomalous magnitudes, or retrieval of comparable companies.
+
+## EXP-A-0004: ReAct Agent with Field-Level Retrieval — fraud_detection
+
+- **Status:** COMPLETE
+- **Date:** 2026-05-11
+- **Task:** fraud_detection
+- **Sample:** Dev eval set (N=12) from EVAL-0001
+- **Sheets:** summary, bs, pl, cf
+- **Model:** claude-haiku-4-5-20251001
+- **Agent:** ReAct (single agent + retrieval tools + calculator). Numerical data removed from the user message; queried on demand via `list_attributes` / `get_attribute`.
+- **Config:** `configs/EXP-A-0004.yaml`
+- **Outputs:** `outputs/EXP-A-0004/claude-haiku-4-5-20251001/`
+- **Results:** `experiments/EXP-A-0004/summary.md`
+- **Total cost:** $1.14
+- **Source:** `src/agents/tool_augmented/`, `src/tools/retrieval.py`, runner: `scripts/EXP-A-0004/run.py`
+
+### Key findings
+
+| Metric | Single-call (EXP-R-0002) | Retrieval ReAct (EXP-A-0004) |
+|--------|--------------------------|------------------------------|
+| Accuracy  | 0.667 | 0.417 |
+| F1        | 0.750 | 0.462 |
+| ROC-AUC   | 0.389 | 0.361 |
+| MCC       | 0.447 | -0.169 |
+
+- **Hypothesis not supported**: field-level retrieval (intended to reduce M2/M3) instead amplified M7 conservatism. Recall collapsed 1.000 → 0.500; all degradations are 1 → 0 flips.
+- **Mechanism**: field-level retrieval flattens co-occurring anomalies into individually-subtle facts, so the model never sees the holistic pattern the flat-context baseline catches by default. The upstream base_prompt's CPA line then breaks borderline ties toward "not fraud."
+- **Cost**: ~13× per example vs single-call baseline, for worse F1.
+- **Q1 sub-investigation** (`experiments/EXP-A-0004/q1-prompt-framing/`): an early pilot "flip" traced to temperature=0 inference non-determinism (batch-invariance failure), not a prompt effect.
+- **Next:** Re-examine the earlier failure diagnosis (EXP-D-0001) — across A-0002/A-0003/A-0004 no scaffold beat the single-call baseline — and likely run a fresh diagnosis (EXP-D-0002) before designing further agents.

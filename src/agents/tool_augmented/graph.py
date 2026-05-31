@@ -15,6 +15,7 @@ from agents.tool_augmented.prompts import SYSTEM_PROMPT
 from agents.tool_augmented.state import AgentState
 from common.parsing import extract_json_between_markers
 from tools.calculator import calculator
+from tools.retrieval import build_retrieval_tools
 
 
 def _track_tokens(state: AgentState, response) -> dict:
@@ -26,20 +27,24 @@ def _track_tokens(state: AgentState, response) -> dict:
     }
 
 
-def build_graph(model_id: str):
-    """Build and compile the ReAct agent graph."""
+def build_graph(model_id: str, example: dict):
+    """Build and compile the ReAct agent graph.
+
+    Tools are built per-example: retrieval tools (list_attributes,
+    get_attribute) capture the example via closure, plus calculator.
+    """
     llm = ChatAnthropic(
         model=model_id,
         max_tokens=4096,
         temperature=0.0,
     )
-    tools = [calculator]
+    tools = [*build_retrieval_tools(example), calculator]
     llm_with_tools = llm.bind_tools(tools)
 
     def agent(state: AgentState) -> dict:
         # On first call, add the user message to state so it persists across turns
         if not state["messages"]:
-            user_content = state["base_prompt"] + state["sheets_text"]
+            user_content = state["base_prompt"] + state["sheets_listing"]
             user_msg = HumanMessage(content=user_content)
             state_messages = [user_msg]
         else:
